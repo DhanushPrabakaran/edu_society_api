@@ -1,0 +1,138 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Mentor {
+  id            Int         @id @default(autoincrement())
+  name          String
+  email         String      @unique
+  role          Mentor_Role @default(INDIVIDUAL)
+  Description   String?
+  password      String?
+  contact       String
+  location      String[]
+  Institution   Institution? @relation(fields: [institutionId], references: [id])
+  institutionId Int?
+  supports      Support[] //funds,loans,
+  Resource      Resource[]
+  FlashNews     FlashNews[]
+  WorkShop      WorkShop[]
+  proof         String[]
+  createdAt     DateTime    @default(now())
+}
+
+model Student {
+  id          Int          @id @default(autoincrement())
+  name        String
+  email       String       @unique
+  role        Student_Role @default(SELF_Student)
+  description String?
+  password    String?
+  contact     String?
+  location    String[]
+  proof       String[]
+  createdAt   DateTime     @default(now())
+  following   String[]
+  saved       String[]
+}
+
+model Institution {
+  id          Int              @id @default(autoincrement())
+  name        String
+  email       String           @unique
+  type        Institution_Type @default(COLLEGE)
+  description String?
+  password    String?
+  contact     String?
+  location    String[]
+  proof       String[] 
+  Mentor      Mentor[]
+  createdAt   DateTime         @default(now())
+}
+
+model Support {
+  id          Int          @id @default(autoincrement())
+  Mentor      Mentor?      @relation(fields: [mentorId], references: [id])
+  mentorId    Int?
+  title       String
+  type        Support_Type @default(Fund)
+  description String?
+  criteria    String
+  link        String
+  createdAt   DateTime     @default(now())
+  LastAt   DateTime  
+}
+
+model Resource {
+  id          Int           @id @default(autoincrement())
+  Mentor      Mentor?       @relation(fields: [mentorId], references: [id])
+  mentorId    Int?
+  title       String
+  type        Resource_Type @default(PDF_URL)
+  description String?
+  body        String
+  link        String
+  createdAt   DateTime      @default(now())
+}
+
+model FlashNews {
+  id          Int      @id @default(autoincrement())
+  Mentor      Mentor?  @relation(fields: [mentorId], references: [id])
+  title       String
+  description String?
+  body        String
+  link        String?
+  mentorId    Int?
+  createdAt   DateTime @default(now())
+}
+
+model WorkShop {
+  id          Int          @id @default(autoincrement())
+  Mentor      Mentor?      @relation(fields: [mentorId], references: [id])
+  mentorId    Int?
+  title       String
+  type        Support_Type @default(Fund)
+  description String?
+  body        String
+  link        String
+  createdAt   DateTime     @default(now())
+}
+
+enum Mentor_Role {
+  INDIVIDUAL
+  COLLEGE_REPRESENTATIVE
+  TRUST_REPRESENTATIVE
+  NGO_REPRESENTATIVE
+  ADMIN
+}
+
+enum Student_Role {
+  COLLEGE_Student
+  SCHOOL_Student
+  SELF_Student
+}
+
+enum Institution_Type {
+  COLLEGE
+  SCHOOL
+  NGO
+  TRUST
+}
+
+enum Support_Type {
+  loan
+  Fund
+  Scheme
+}
+
+enum Resource_Type {
+  PDF_URL
+  VIDEO_TUTORIAL
+  WEB_URL
+  OTHERS
+}
